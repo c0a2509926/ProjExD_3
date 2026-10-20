@@ -140,6 +140,20 @@ class Bomb:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+class Score:
+
+    def __init__(self):
+        self.fonto = pg.font.Font(None, 50)
+        self.color = (0,0,255)
+        self.point = 0
+        self.img = self.fonto.render("表示させる文字",0, (self.color))
+        self.rct = self.img.get_rect()
+        self.rct.center = (100,HEIGHT-50)
+
+    def  update(self, screen: pg.Surface):
+        txt = self.fonto.render(f"Score:{self.point}",True, (self.color))
+        screen.blit(txt, self.rct) 
+
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -153,6 +167,7 @@ def main():
     beam = None  # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
     tmr = 0
+    score = Score()
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -176,18 +191,21 @@ def main():
         for i,bomb in enumerate(bombs):
             if beam is not None:
                 if beam.rct.colliderect(bomb.rct):  # ビームと爆弾の衝突判定
+
                     beam = None
                     bombs[i] = None
                     bird.change_img(6, screen)
+                    score.point += 1
                     pg.display.update()
         bombs = [bomb for bomb in bombs if bomb is not None]  # Noneを取り除く
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
+        score.update(screen)
         if beam is not None:
             beam.update(screen)  
         for bomb in bombs: 
-            bomb.update(screen)
+            bomb.update(screen)    
         pg.display.update()
         tmr += 1
         clock.tick(50)
